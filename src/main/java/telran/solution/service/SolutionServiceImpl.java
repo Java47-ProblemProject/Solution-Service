@@ -22,16 +22,16 @@ import java.util.stream.Collectors;
 public class SolutionServiceImpl implements  SolutionService {
     final SolutionRepository solutionRepository;
     final ModelMapper modelMapper;
-    final KafkaConsumer kafkaConsumer;
+//    final KafkaConsumer kafkaConsumer;
 
     @Override
     public SolutionDto addSolution(CreateSolutionDto solutionDto) {
-        Solution solution = modelMapper.map(SolutionDto, Solution.class);
+        Solution solution = modelMapper.map(solutionDto, Solution.class);
         ProfileDto profile = kafkaConsumer.getProfile();
         solution.setAuthor(profile.getUsername());
         solution.setAuthorId(profile.getEmail());
         solution = solutionRepository.save(solution);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return modelMapper.map(solution, SolutionDto.class);
     }
 
