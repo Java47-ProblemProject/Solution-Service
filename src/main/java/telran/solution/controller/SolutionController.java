@@ -2,46 +2,51 @@ package telran.solution.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import telran.solution.dto.solutions.CreateSolutionDto;
-import telran.solution.dto.solutions.EditSolutionDto;
-import telran.solution.service.SolutionService;
+import telran.solution.dto.solutions.CreateEditSolutionDto;
 import telran.solution.dto.solutions.SolutionDto;
+import telran.solution.service.SolutionService;
 
-import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/solution")
 
 public class SolutionController {
-    private final SolutionService solutionService;
+    final SolutionService solutionService;
 
-    @PostMapping("/createsolution")
-    public SolutionDto addSolution(@RequestBody CreateSolutionDto solution){
-        return solutionService.addSolution(solution);
+    @PostMapping("/addsolution/{problemId}")
+    public SolutionDto addSolution(@PathVariable String problemId, @RequestBody CreateEditSolutionDto details) {
+        return solutionService.addSolution(problemId, details);
     }
-    @PutMapping("/editsolution/{userId}/{solutionId}")
-    public SolutionDto editSolution(@RequestBody EditSolutionDto solution, @PathVariable String userId, @PathVariable String solutionId) {
-        return solutionService.editSolution(solution, userId,solutionId);
+
+    @PutMapping("/likesolution/{problemId}/{solutionId}")
+    public Boolean addLike(@PathVariable String problemId, @PathVariable String solutionId) {
+        return solutionService.addLike(problemId, solutionId);
     }
-    @DeleteMapping("/deletesolution/{solutionId}")
-    public SolutionDto deleteSolution(@PathVariable String solutionId){
-        return solutionService.deleteSolution(solutionId);
+
+    @PutMapping("/dislikesolutioin/{problemId}/{solutionId}")
+    public Boolean addDislike(@PathVariable String problemId, @PathVariable String solutionId) {
+        return solutionService.addDisLike(problemId, solutionId);
     }
-    @PutMapping("/likesolution/{solutionId}")
-    public boolean likeSolution(@PathVariable String solutionId){
-        return solutionService.addLike(solutionId);
+
+    @PutMapping("/editsolution/{problemId}/{solutionId}")
+    public SolutionDto editSolution(@PathVariable String problemId, @PathVariable String solutionId, @PathVariable CreateEditSolutionDto details) {
+        return solutionService.editSolution(problemId, solutionId, details);
     }
-    @PutMapping("/dislikesolution/{solutionId}")
-    public boolean dislikeSolution(@PathVariable String solutionId){
-        return solutionService.addDisLike(solutionId);
+
+    @DeleteMapping("/deletesolution/{problemId}/{solutionId}")
+    public SolutionDto deleteSolution(@PathVariable String problemId, @PathVariable String solutionId) {
+        return solutionService.deleteSolution(problemId, solutionId);
     }
-    @GetMapping("/getsolution/{solutionId}")
-    public SolutionDto getSolution(@PathVariable String solutionId){
-        return solutionService.findSolutionById(solutionId);
+
+    @GetMapping("/getsolution/{problemId}/{solutionId}")
+    public SolutionDto getSolution(@PathVariable String problemId, @PathVariable String solutionId) {
+        return solutionService.getSolution(problemId, solutionId);
     }
-    @GetMapping("/getsolutions")
-    public List<SolutionDto> getSolutions(){
-        return solutionService.getSolutions();
+
+    @GetMapping("/{problemId}/getsolutions")
+    public Set<SolutionDto> getSolutions(@PathVariable String problemId) {
+        return solutionService.getSolutions(problemId);
     }
 }

@@ -8,25 +8,24 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Reactions {
-    protected Integer likes = 0;
-    protected Integer dislikes = 0;
+    protected Integer likes;
+    protected Integer dislikes;
 
     public void addLike(){
-        likes++;
+        this.likes++;
     }
-    public void addDislike(){
-        dislikes++;
-    }
-
-    public int getTotalLikes() {
-        return likes + dislikes;
+    public void addDislike() {
+        this.dislikes++;
     }
 
-    public void subtractLike() {
-        if (likes > 0) {
-            likes--;
-        }
+    public void removeLike(){
+        this.likes--;
+    }
+    public void removeDislike(){
+        this.dislikes--;
     }
 }
+
+
 
 

@@ -1,25 +1,23 @@
 package telran.solution.service;
 
-import telran.solution.dto.solutions.CreateSolutionDto;
-import telran.solution.dto.solutions.EditSolutionDto;
+import telran.solution.dto.solutions.CreateEditSolutionDto;
 import telran.solution.dto.solutions.SolutionDto;
 
-import java.util.List;
+import java.util.Set;
 
 public interface SolutionService {
-    SolutionDto addSolution(CreateSolutionDto solution);
+    SolutionDto addSolution(String problemId, CreateEditSolutionDto details);
 
-    SolutionDto editSolution(EditSolutionDto solution, String userId, String solutionId);
+    boolean addLike(String problemId, String solutionId);
 
-    SolutionDto deleteSolution(String solutionId);
+    boolean addDisLike(String problemId, String solutionId);
 
-    boolean addLike(String solutionId);
+    SolutionDto editSolution(String problemId, String solutionId, CreateEditSolutionDto details);
 
+    SolutionDto deleteSolution(String problemId, String solutionId);
 
+    SolutionDto getSolution(String problemId, String solutionId);
 
-    boolean addDisLike(String solutionId);
+    Set<SolutionDto> getSolutions(String problemId);
 
-    SolutionDto findSolutionById(String solutionId);
-
-    List<SolutionDto> getSolutions();
 }

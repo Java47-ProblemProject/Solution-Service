@@ -13,5 +13,6 @@ public class SolutionDto {
     protected String details;
     protected LocalDateTime dateCreated;
     protected Reactions reactions;
+    protected String type;
 
 }

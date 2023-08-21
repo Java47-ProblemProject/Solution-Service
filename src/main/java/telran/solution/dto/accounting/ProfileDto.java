@@ -1,9 +1,15 @@
 package telran.solution.dto.accounting;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.util.Map;
 import java.util.Set;
-
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 @Getter
 public class ProfileDto {
     protected String username;
@@ -15,6 +21,23 @@ public class ProfileDto {
     protected Set<String> roles;
     protected String avatar;
     protected StatsDto stats;
-    protected Set<ActivityDto> activities;
+    protected Map<String, ActivityDto> activities;
     protected Double wallet;
+
+    public void addActivity(String id, ActivityDto activity) {
+        this.activities.put(id, activity);
+    }
+
+    public void removeActivity(String id) {
+        this.activities.remove(id);
+    }
 }
+//
+//    public void addFormulatedProblem(){
+//        this.stats.setFormulatedProblems(this.stats.getFormulatedProblems()+1);
+//    }
+//
+//    public void removeFormulatedProblem(){
+//        this.stats.setFormulatedProblems(this.stats.getFormulatedProblems()-1);
+//    }
+
