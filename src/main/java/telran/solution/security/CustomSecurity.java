@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import telran.solution.configuration.KafkaConsumer;
 import telran.solution.dao.SolutionRepository;
 import telran.solution.dto.accounting.ProfileDto;
-import telran.solution.dto.problems.ProblemDto;
+import telran.solution.dto.kafkaData.problemDataDto.ProblemServiceDataDto;
 import telran.solution.model.Solution;
 
 import java.util.NoSuchElementException;
@@ -19,12 +19,12 @@ public class CustomSecurity {
     public boolean checkSolutionAuthorAndProblemId(String problemId, String solutionId, String authorId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
         ProfileDto profile = kafkaConsumer.getProfile();
-        ProblemDto problem = kafkaConsumer.getProblem();
-        return authorId.equals(profile.getEmail()) && authorId.equals(solution.getAuthorId()) && problemId.equals(problem.getId());
+        ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
+        return authorId.equals(profile.getEmail()) && authorId.equals(solution.getAuthorId()) && problemId.equals(problem.getProblemId());
     }
 
     public boolean checkProblemId(String problemId){
-        ProblemDto problem = kafkaConsumer.getProblem();
-        return problemId.equals(problem.getId());
+        ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
+        return problemId.equals(problem.getProblemId());
     }
 }

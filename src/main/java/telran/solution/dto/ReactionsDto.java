@@ -1,4 +1,4 @@
-package telran.solution.dto.solutions;
+package telran.solution.dto;
 
 public class ReactionsDto {
     protected Integer likes;

@@ -1,7 +1,7 @@
 package telran.solution.service;
 
-import telran.solution.dto.solutions.CreateEditSolutionDto;
-import telran.solution.dto.solutions.SolutionDto;
+import telran.solution.dto.CreateEditSolutionDto;
+import telran.solution.dto.SolutionDto;
 
 import java.util.Set;
 
@@ -19,5 +19,7 @@ public interface SolutionService {
     SolutionDto getSolution(String problemId, String solutionId);
 
     Set<SolutionDto> getSolutions(String problemId);
+
+    Set<SolutionDto> getSolutionsByProfileId(String profileId);
 
 }

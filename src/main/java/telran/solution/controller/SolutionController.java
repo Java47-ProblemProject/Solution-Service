@@ -2,8 +2,8 @@ package telran.solution.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import telran.solution.dto.solutions.CreateEditSolutionDto;
-import telran.solution.dto.solutions.SolutionDto;
+import telran.solution.dto.CreateEditSolutionDto;
+import telran.solution.dto.SolutionDto;
 import telran.solution.service.SolutionService;
 
 import java.util.Set;
@@ -11,7 +11,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/solution")
-
 public class SolutionController {
     final SolutionService solutionService;
 
@@ -30,13 +29,13 @@ public class SolutionController {
         return solutionService.addDisLike(problemId, solutionId);
     }
 
-    @PutMapping("/editsolution/{problemId}/{solutionId}")
-    public SolutionDto editSolution(@PathVariable String problemId, @PathVariable String solutionId, @PathVariable CreateEditSolutionDto details) {
+    @PutMapping("/editsolution/{profileId}/{problemId}/{solutionId}")
+    public SolutionDto editSolution(@PathVariable String profileId, @PathVariable String problemId, @PathVariable String solutionId, @RequestBody CreateEditSolutionDto details) {
         return solutionService.editSolution(problemId, solutionId, details);
     }
 
-    @DeleteMapping("/deletesolution/{problemId}/{solutionId}")
-    public SolutionDto deleteSolution(@PathVariable String problemId, @PathVariable String solutionId) {
+    @DeleteMapping("/deletesolution/{profileId}/{problemId}/{solutionId}")
+    public SolutionDto deleteSolution(@PathVariable String profileId, @PathVariable String problemId, @PathVariable String solutionId) {
         return solutionService.deleteSolution(problemId, solutionId);
     }
 
@@ -45,8 +44,13 @@ public class SolutionController {
         return solutionService.getSolution(problemId, solutionId);
     }
 
-    @GetMapping("/{problemId}/getsolutions")
+    @GetMapping("/getsolutions/{problemId}")
     public Set<SolutionDto> getSolutions(@PathVariable String problemId) {
         return solutionService.getSolutions(problemId);
+    }
+
+    @GetMapping("/getautorsolutions/{profileId}")
+    public Set<SolutionDto> getSolutionsByProfileId(@PathVariable String profileId) {
+        return solutionService.getSolutionsByProfileId(profileId);
     }
 }

@@ -16,11 +16,11 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeRequests(authorize -> authorize
 //                       //User section//
-                        .requestMatchers(HttpMethod.PUT, "/solution/addsolution{problemId}")
+                        .requestMatchers(HttpMethod.PUT, "/solution/addsolution/{problemId}")
                         .access("@customSecurity.checkProblemId(#problemId)")
                         .requestMatchers(HttpMethod.PUT, "/solution/editsolution/{profileId}/{problemId}/{solutionId}")
                         .access("@customSecurity.checkSolutionAuthorAndProblemId(#problemId, #solutionId, #profileId)")
-                        .requestMatchers(HttpMethod.DELETE,"/solution/deletesolution/{profileId}/{problemId}/{solutiond}")
+                        .requestMatchers(HttpMethod.DELETE,"/solution/deletesolution/{profileId}/{problemId}/{solutionId}")
                         .access("@customSecurity.checkSolutionAuthorAndProblemId(#problemId, #solutionId, #profileId)")
                         .anyRequest()
                         .authenticated()
