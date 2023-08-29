@@ -22,14 +22,14 @@ public class Solution {
     @Setter
     protected String details;
     protected LocalDateTime dateCreated;
+    @Setter
+    protected boolean checked;
     protected Reactions reactions;
     protected String type;
     public Solution(){
+        this.checked = false;
         this.dateCreated = LocalDateTime.now();
         this.reactions = new Reactions(0,0);
         this.type = "SOLUTION";
     }
-    public void setReactionsLike(){this.reactions.setLikes(this.reactions.getLikes()+1);}
-    public void setReactionsDislike(){this.reactions.setDislikes(this.reactions.getDislikes()+1);}
-
 }

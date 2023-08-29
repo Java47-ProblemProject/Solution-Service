@@ -41,7 +41,7 @@ public class SolutionServiceImpl implements SolutionService {
             solution.setAuthor(profile.getUsername());
             solution.setAuthorId(profile.getEmail());
             solutionRepository.save(solution);
-            SolutionServiceDataDto data = new SolutionServiceDataDto(profile.getEmail(), problem.getProblemId(), solution.getId(), SolutionMethodName.ADD_SOLUTION);
+            SolutionServiceDataDto data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_SOLUTION);
             System.out.println("SOLUTION DATA SENT");
             kafkaProducer.setSolutionData(data);
             return modelMapper.map(solution, SolutionDto.class);
@@ -73,7 +73,7 @@ public class SolutionServiceImpl implements SolutionService {
         if (!hasActivity) {
             solution.getReactions().addLike();
             solutionRepository.save(solution);
-            data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.ADD_LIKE);
+            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_LIKE);
             kafkaProducer.setSolutionData(data);
             return true;
         }
@@ -84,7 +84,7 @@ public class SolutionServiceImpl implements SolutionService {
             if (disliked) {
                 solution.getReactions().removeDislike();
             }
-            data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.ADD_LIKE);
+            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_LIKE);
             kafkaProducer.setSolutionData(data);
             solutionRepository.save(solution);
             return true;
@@ -93,11 +93,11 @@ public class SolutionServiceImpl implements SolutionService {
             boolean isAuthorProblem = problem.getProblemAuthorId().equals(profile.getEmail());
             boolean isAuthorComment = solution.getAuthorId().equals(profile.getEmail());
             if (isAuthorComment) {
-                data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.REMOVE_LIKE);
+                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_LIKE);
             } else if (isAuthorProblem || isSubscriber) {
-                data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.REMOVE_LIKE_REMOVE_COMMENT_ACTIVITY);
+                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_LIKE_REMOVE_COMMENT_ACTIVITY);
             } else {
-                data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.REMOVE_LIKE_REMOVE_ALL_ACTIVITIES);
+                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_LIKE_REMOVE_ALL_ACTIVITIES);
             }
             kafkaProducer.setSolutionData(data);
             solution.getReactions().removeLike();
@@ -117,7 +117,7 @@ public class SolutionServiceImpl implements SolutionService {
         if (!hasActivity) {
             solution.getReactions().addDislike();
             solutionRepository.save(solution);
-            data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.ADD_DISLIKE);
+            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_DISLIKE);
             kafkaProducer.setSolutionData(data);
             return true;
         }
@@ -128,7 +128,7 @@ public class SolutionServiceImpl implements SolutionService {
             if (liked) {
                 solution.getReactions().removeLike();
             }
-            data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.ADD_DISLIKE);
+            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_DISLIKE);
             kafkaProducer.setSolutionData(data);
             solutionRepository.save(solution);
             return true;
@@ -137,11 +137,11 @@ public class SolutionServiceImpl implements SolutionService {
             boolean isAuthorProblem = problem.getProblemAuthorId().equals(profile.getEmail());
             boolean isAuthorComment = solution.getAuthorId().equals(profile.getEmail());
             if (isAuthorComment) {
-                data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.REMOVE_DISLIKE);
+                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_DISLIKE);
             } else if (isAuthorProblem || isSubscriber) {
-                data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.REMOVE_DISLIKE_REMOVE_COMMENT_ACTIVITY);
+                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_DISLIKE_REMOVE_COMMENT_ACTIVITY);
             } else {
-                data = addDataToTransfer(profile.getEmail(), problem.getProblemId(), solutionId, SolutionMethodName.REMOVE_DISLIKE_REMOVE_ALL_ACTIVITIES);
+                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_DISLIKE_REMOVE_ALL_ACTIVITIES);
             }
             kafkaProducer.setSolutionData(data);
             solution.getReactions().removeLike();
@@ -157,9 +157,9 @@ public class SolutionServiceImpl implements SolutionService {
         ProfileDto profile = kafkaConsumer.getProfile();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         if (solution.getAuthorId().equals(profile.getEmail())) {
-            SolutionServiceDataDto data = new SolutionServiceDataDto(profile.getEmail(), problem.getProblemId(), solution.getId(), SolutionMethodName.DELETE_SOLUTION);
+            SolutionServiceDataDto data = addDataToTransfer(profile, problem, solution, SolutionMethodName.DELETE_SOLUTION);
             if (problem.getSubscribers().contains(profile.getEmail())) {
-                data = new SolutionServiceDataDto(profile.getEmail(), problem.getProblemId(), solution.getId(), SolutionMethodName.DELETE_SOLUTION_AND_PROBLEM);
+                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.DELETE_SOLUTION_AND_PROBLEM);
             }
             kafkaProducer.setSolutionData(data);
             solutionRepository.delete(solution);
@@ -186,7 +186,7 @@ public class SolutionServiceImpl implements SolutionService {
         return solutionRepository.findAllByAuthorId(profileId).map(e -> modelMapper.map(e, SolutionDto.class)).collect(Collectors.toSet());
     }
 
-    private SolutionServiceDataDto addDataToTransfer(String profileId, String problemId, String commentId, SolutionMethodName methodName) {
-        return new SolutionServiceDataDto(profileId, problemId, commentId, methodName);
+    private SolutionServiceDataDto addDataToTransfer(ProfileDto profile,ProblemServiceDataDto problem, Solution solution, SolutionMethodName methodName) {
+        return new SolutionServiceDataDto(profile.getEmail(), problem.getProblemId(), problem.getProblemRating(), solution.getId(), methodName);
     }
 }
