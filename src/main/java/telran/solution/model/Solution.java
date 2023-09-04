@@ -18,6 +18,8 @@ public class Solution {
     @Setter
     protected String authorId;
     @Setter
+    protected String problemId;
+    @Setter
     protected String title;
     @Setter
     protected String details;
@@ -29,7 +31,7 @@ public class Solution {
     public Solution(){
         this.checked = false;
         this.dateCreated = LocalDateTime.now();
-        this.reactions = new Reactions(0,0);
+        this.reactions = new Reactions();
         this.type = "SOLUTION";
     }
 }

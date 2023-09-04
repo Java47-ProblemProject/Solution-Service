@@ -24,7 +24,7 @@ public class SolutionController {
         return solutionService.addLike(problemId, solutionId);
     }
 
-    @PutMapping("/dislikesolutioin/{problemId}/{solutionId}")
+    @PutMapping("/dislikesolution/{problemId}/{solutionId}")
     public Boolean addDislike(@PathVariable String problemId, @PathVariable String solutionId) {
         return solutionService.addDisLike(problemId, solutionId);
     }

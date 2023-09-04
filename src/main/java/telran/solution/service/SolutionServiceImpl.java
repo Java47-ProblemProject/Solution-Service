@@ -40,9 +40,9 @@ public class SolutionServiceImpl implements SolutionService {
         if (problem.getProblemId().equals(problemId)) {
             solution.setAuthor(profile.getUsername());
             solution.setAuthorId(profile.getEmail());
+            solution.setProblemId(problem.getProblemId());
             solutionRepository.save(solution);
             SolutionServiceDataDto data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_SOLUTION);
-            System.out.println("SOLUTION DATA SENT");
             kafkaProducer.setSolutionData(data);
             return modelMapper.map(solution, SolutionDto.class);
         } else throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Wrong problem in address");
@@ -67,43 +67,13 @@ public class SolutionServiceImpl implements SolutionService {
     public boolean addLike(String problemId, String solutionId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
         ProfileDto profile = kafkaConsumer.getProfile();
+        Double profileRating = profile.getStats().getRating();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
-        SolutionServiceDataDto data;
-        boolean hasActivity = profile.getActivities().containsKey(solutionId);
-        if (!hasActivity) {
-            solution.getReactions().addLike();
-            solutionRepository.save(solution);
-            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_LIKE);
-            kafkaProducer.setSolutionData(data);
-            return true;
-        }
-        boolean liked = profile.getActivities().get(solutionId).getLiked();
-        boolean disliked = profile.getActivities().get(solutionId).getDisliked();
-        if (!liked) {
-            solution.getReactions().addLike();
-            if (disliked) {
-                solution.getReactions().removeDislike();
-            }
-            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_LIKE);
-            kafkaProducer.setSolutionData(data);
-            solutionRepository.save(solution);
-            return true;
-        } else {
-            boolean isSubscriber = problem.getSubscribers().contains(profile.getEmail());
-            boolean isAuthorProblem = problem.getProblemAuthorId().equals(profile.getEmail());
-            boolean isAuthorComment = solution.getAuthorId().equals(profile.getEmail());
-            if (isAuthorComment) {
-                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_LIKE);
-            } else if (isAuthorProblem || isSubscriber) {
-                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_LIKE_REMOVE_COMMENT_ACTIVITY);
-            } else {
-                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_LIKE_REMOVE_ALL_ACTIVITIES);
-            }
-            kafkaProducer.setSolutionData(data);
-            solution.getReactions().removeLike();
-            solutionRepository.save(solution);
-            return false;
-        }
+        boolean result = solution.getReactions().setLike(profile.getEmail(), profileRating);
+        solutionRepository.save(solution);
+        SolutionServiceDataDto data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_LIKE);
+        kafkaProducer.setSolutionData(data);
+        return result;
     }
 
     @Override
@@ -111,43 +81,13 @@ public class SolutionServiceImpl implements SolutionService {
     public boolean addDisLike(String problemId, String solutionId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
         ProfileDto profile = kafkaConsumer.getProfile();
+        Double profileRating = profile.getStats().getRating();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
-        SolutionServiceDataDto data;
-        boolean hasActivity = profile.getActivities().containsKey(solutionId);
-        if (!hasActivity) {
-            solution.getReactions().addDislike();
-            solutionRepository.save(solution);
-            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_DISLIKE);
-            kafkaProducer.setSolutionData(data);
-            return true;
-        }
-        boolean liked = profile.getActivities().get(solutionId).getLiked();
-        boolean disliked = profile.getActivities().get(solutionId).getDisliked();
-        if (!disliked) {
-            solution.getReactions().addDislike();
-            if (liked) {
-                solution.getReactions().removeLike();
-            }
-            data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_DISLIKE);
-            kafkaProducer.setSolutionData(data);
-            solutionRepository.save(solution);
-            return true;
-        } else {
-            boolean isSubscriber = problem.getSubscribers().contains(profile.getEmail());
-            boolean isAuthorProblem = problem.getProblemAuthorId().equals(profile.getEmail());
-            boolean isAuthorComment = solution.getAuthorId().equals(profile.getEmail());
-            if (isAuthorComment) {
-                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_DISLIKE);
-            } else if (isAuthorProblem || isSubscriber) {
-                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_DISLIKE_REMOVE_COMMENT_ACTIVITY);
-            } else {
-                data = addDataToTransfer(profile, problem, solution, SolutionMethodName.REMOVE_DISLIKE_REMOVE_ALL_ACTIVITIES);
-            }
-            kafkaProducer.setSolutionData(data);
-            solution.getReactions().removeLike();
-            solutionRepository.save(solution);
-            return false;
-        }
+        boolean result = solution.getReactions().setDislike(profile.getEmail(), profileRating);
+        solutionRepository.save(solution);
+        SolutionServiceDataDto data = addDataToTransfer(profile, problem, solution, SolutionMethodName.ADD_DISLIKE);
+        kafkaProducer.setSolutionData(data);
+        return result;
     }
 
     @Override
