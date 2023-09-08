@@ -1,4 +1,4 @@
-package telran.solution.dto.accounting;
+package telran.solution.kafka.accounting;
 
 import lombok.Getter;
 

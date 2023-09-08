@@ -2,10 +2,10 @@ package telran.solution.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import telran.solution.configuration.KafkaConsumer;
+import telran.solution.kafka.KafkaConsumer;
 import telran.solution.dao.SolutionRepository;
-import telran.solution.dto.accounting.ProfileDto;
-import telran.solution.dto.kafkaData.problemDataDto.ProblemServiceDataDto;
+import telran.solution.kafka.accounting.ProfileDto;
+import telran.solution.kafka.kafkaDataDto.problemDataDto.ProblemServiceDataDto;
 import telran.solution.model.Solution;
 
 import java.util.NoSuchElementException;

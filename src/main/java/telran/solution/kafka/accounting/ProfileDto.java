@@ -1,10 +1,8 @@
-package telran.solution.dto.accounting;
+package telran.solution.kafka.accounting;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 

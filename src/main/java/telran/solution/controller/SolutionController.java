@@ -11,6 +11,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/solution")
+@CrossOrigin(origins = "http://127.0.0.1:5173/", allowedHeaders = "*")
 public class SolutionController {
     final SolutionService solutionService;
 

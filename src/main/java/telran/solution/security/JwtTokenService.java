@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class JwtTokenService {
     @Value("${jwt.secret-key}")
     private String jwtSecretKey;
     private SecretKey jwtSecret;
+    private final Map<String, String> userTokenCache = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -30,11 +32,11 @@ public class JwtTokenService {
             Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
             String encryptedEmail = claims.getSubject();
             if (claims.getExpiration().before(new Date())) {
-                return null;
+                return "";
             }
             return EmailEncryptionConfiguration.decryptAndDecodeUserId(encryptedEmail);
         } catch (Exception ex) {
-            return null;
+            return "";
         }
     }
 
@@ -50,11 +52,24 @@ public class JwtTokenService {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token);
-            return true;
+            Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(token).getBody();
+            String email = claims.getSubject();
+            String cachedToken = userTokenCache.get(email);
+            if (cachedToken == null || !cachedToken.equals(token)) {
+                return false;
+            }
+            return !claims.getExpiration().before(new Date());
         } catch (Exception ex) {
             return false;
         }
+    }
+
+    public void setCurrentProfileToken(String profileId, String token) {
+        this.userTokenCache.put(profileId, token);
+    }
+
+    public void deleteCurrentProfileToken(String profileId) {
+        this.userTokenCache.remove(profileId);
     }
 }
 

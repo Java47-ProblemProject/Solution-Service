@@ -1,4 +1,4 @@
-package telran.solution.dto.kafkaData.problemDataDto;
+package telran.solution.kafka.kafkaDataDto.problemDataDto;
 
 import lombok.Getter;
 

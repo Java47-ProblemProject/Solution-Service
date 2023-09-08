@@ -1,10 +1,10 @@
-package telran.solution.configuration;
+package telran.solution.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import telran.solution.dto.kafkaData.solutionDataDto.SolutionServiceDataDto;
+import telran.solution.kafka.kafkaDataDto.solutionDataDto.SolutionServiceDataDto;
 
 import java.util.function.Supplier;
 
