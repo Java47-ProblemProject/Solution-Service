@@ -2,10 +2,10 @@ package telran.solution.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import telran.solution.kafka.KafkaConsumer;
 import telran.solution.dao.SolutionRepository;
-import telran.solution.kafka.accounting.ProfileDto;
+import telran.solution.kafka.KafkaConsumer;
 import telran.solution.kafka.kafkaDataDto.problemDataDto.ProblemServiceDataDto;
+import telran.solution.kafka.profileDataDto.ProfileDataDto;
 import telran.solution.model.Solution;
 
 import java.util.NoSuchElementException;
@@ -18,7 +18,7 @@ public class CustomSecurity {
 
     public boolean checkSolutionAuthorAndProblemId(String problemId, String solutionId, String authorId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
-        ProfileDto profile = kafkaConsumer.getProfile();
+        ProfileDataDto profile = kafkaConsumer.getProfile();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         return authorId.equals(profile.getEmail()) && authorId.equals(solution.getAuthorId()) && problemId.equals(problem.getProblemId());
     }
