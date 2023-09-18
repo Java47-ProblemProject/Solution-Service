@@ -24,36 +24,36 @@ public class Reactions {
     }
 
     public boolean setLike(String profileId, Double profileRating) {
-        ProfileDetails profileDetails = new ProfileDetails(profileId, profileRating);
-        if (this.likes.contains(profileDetails)) {
-            this.likes.remove(profileDetails);
+        boolean isLiked = this.likes.stream().anyMatch(profileDetails -> profileDetails.getProfileId().equals(profileId));
+        if (isLiked) {
+            ProfileDetails profileToRemove = this.likes.stream()
+                    .filter(profileDetails -> profileDetails.getProfileId().equals(profileId))
+                    .findFirst()
+                    .get();
+            this.likes.remove(profileToRemove);
             this.totalLikes--;
-            return false;
         } else {
-            if (this.dislikes.contains(profileDetails)) {
-                this.dislikes.remove(profileDetails);
-                this.totalDislikes--;
-            }
-            this.likes.add(profileDetails);
+            ProfileDetails newLike = new ProfileDetails(profileId, profileRating);
+            this.likes.add(newLike);
             this.totalLikes++;
-            return true;
         }
+        return !isLiked;
     }
 
     public boolean setDislike(String profileId, Double profileRating) {
-        ProfileDetails profileDetails = new ProfileDetails(profileId, profileRating);
-        if (this.dislikes.contains(profileDetails)) {
-            this.dislikes.remove(profileDetails);
+        boolean isDisliked = this.dislikes.stream().anyMatch(profileDetails -> profileDetails.getProfileId().equals(profileId));
+        if (isDisliked) {
+            ProfileDetails profileToRemove = this.dislikes.stream()
+                    .filter(profileDetails -> profileDetails.getProfileId().equals(profileId))
+                    .findFirst()
+                    .get();
+            this.dislikes.remove(profileToRemove);
             this.totalDislikes--;
-            return false;
         } else {
-            if (this.likes.contains(profileDetails)) {
-                this.likes.remove(profileDetails);
-                this.totalLikes--;
-            }
-            this.dislikes.add(profileDetails);
+            ProfileDetails newDislike = new ProfileDetails(profileId, profileRating);
+            this.dislikes.add(newDislike);
             this.totalDislikes++;
-            return true;
         }
+        return !isDisliked;
     }
 }

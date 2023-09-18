@@ -61,6 +61,10 @@ public class SolutionServiceImpl implements SolutionService {
         Double profileRating = profile.getRating();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         boolean result = solution.getReactions().setLike(profile.getEmail(), profileRating);
+        if (solution.checkSolutionResult(problem.getProblemRating())){
+            System.out.println("SOLUTION CHECKED AND PROBLEM CLOSED");
+            // transferData(profile, problem, solution, SolutionMethodName.ADD_DISLIKE); CHECKED
+        }
         solutionRepository.save(solution);
         transferData(profile, problem, solution, SolutionMethodName.ADD_LIKE);
         return result;
@@ -74,6 +78,10 @@ public class SolutionServiceImpl implements SolutionService {
         Double profileRating = profile.getRating();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         boolean result = solution.getReactions().setDislike(profile.getEmail(), profileRating);
+        if (solution.checkSolutionResult(problem.getProblemRating())){
+            System.out.println("SOLUTION CHECKED AND PROBLEM CLOSED");
+           // transferData(profile, problem, solution, SolutionMethodName.ADD_DISLIKE); CHECKED
+        }
         solutionRepository.save(solution);
         transferData(profile, problem, solution, SolutionMethodName.ADD_DISLIKE);
         return result;
@@ -100,7 +108,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Override
     @Transactional(readOnly = true)
     public Set<SolutionDto> getSolutions(String problemId) {
-        return solutionRepository.findAll().stream().map(e -> modelMapper.map(e, SolutionDto.class))
+        return solutionRepository.findAllByProblemId(problemId).map(e -> modelMapper.map(e, SolutionDto.class))
                 .collect(Collectors.toSet());
     }
 
