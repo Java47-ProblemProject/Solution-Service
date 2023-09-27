@@ -1,6 +1,7 @@
 package telran.solution.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import telran.solution.dao.SolutionRepository;
 import telran.solution.kafka.KafkaConsumer;
@@ -18,7 +19,7 @@ public class CustomSecurity {
 
     public boolean checkSolutionAuthorAndProblemId(String problemId, String solutionId, String authorId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
-        ProfileDataDto profile = kafkaConsumer.getProfile();
+        ProfileDataDto profile = kafkaConsumer.getProfiles().get(SecurityContextHolder.getContext().getAuthentication().getName());
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         return authorId.equals(profile.getEmail()) && authorId.equals(solution.getAuthorId()) && problemId.equals(problem.getProblemId());
     }

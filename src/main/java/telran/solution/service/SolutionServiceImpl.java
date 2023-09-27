@@ -2,6 +2,7 @@ package telran.solution.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import telran.solution.dao.SolutionRepository;
@@ -16,6 +17,7 @@ import telran.solution.kafka.kafkaDataDto.solutionDataDto.SolutionServiceDataDto
 import telran.solution.kafka.profileDataDto.ProfileDataDto;
 import telran.solution.model.Solution;
 
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +34,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Transactional
     public SolutionDto addSolution(String problemId, CreateEditSolutionDto details) {
         Solution solution = modelMapper.map(details, Solution.class);
-        ProfileDataDto profile = kafkaConsumer.getProfile();
+        ProfileDataDto profile = kafkaConsumer.getProfiles().get(SecurityContextHolder.getContext().getAuthentication().getName());
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         solution.setAuthor(profile.getUserName());
         solution.setAuthorId(profile.getEmail());
@@ -57,7 +59,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Transactional
     public boolean addLike(String problemId, String solutionId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
-        ProfileDataDto profile = kafkaConsumer.getProfile();
+        ProfileDataDto profile = kafkaConsumer.getProfiles().get(SecurityContextHolder.getContext().getAuthentication().getName());
         Double profileRating = profile.getRating();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         boolean result = solution.getReactions().setLike(profile.getEmail(), profileRating);
@@ -74,7 +76,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Transactional
     public boolean addDisLike(String problemId, String solutionId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
-        ProfileDataDto profile = kafkaConsumer.getProfile();
+        ProfileDataDto profile = kafkaConsumer.getProfiles().get(SecurityContextHolder.getContext().getAuthentication().getName());
         Double profileRating = profile.getRating();
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         boolean result = solution.getReactions().setDislike(profile.getEmail(), profileRating);
@@ -91,7 +93,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Transactional
     public SolutionDto deleteSolution(String problemId, String solutionId) {
         Solution solution = solutionRepository.findById(solutionId).orElseThrow(NoSuchElementException::new);
-        ProfileDataDto profile = kafkaConsumer.getProfile();
+        ProfileDataDto profile = kafkaConsumer.getProfiles().get(SecurityContextHolder.getContext().getAuthentication().getName());
         ProblemServiceDataDto problem = kafkaConsumer.getProblemData();
         transferData(profile, problem, solution, SolutionMethodName.DELETE_SOLUTION);
         solutionRepository.delete(solution);
@@ -108,13 +110,13 @@ public class SolutionServiceImpl implements SolutionService {
     @Override
     @Transactional(readOnly = true)
     public Set<SolutionDto> getSolutions(String problemId) {
-        return solutionRepository.findAllByProblemId(problemId).map(e -> modelMapper.map(e, SolutionDto.class))
-                .collect(Collectors.toSet());
+        return solutionRepository.findAllByProblemIdOrderByDateCreatedDesc(problemId).map(e -> modelMapper.map(e, SolutionDto.class))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
     public Set<SolutionDto> getSolutionsByProfileId(String profileId) {
-        return solutionRepository.findAllByAuthorId(profileId).map(e -> modelMapper.map(e, SolutionDto.class)).collect(Collectors.toSet());
+        return solutionRepository.findAllByAuthorIdOrderByDateCreatedDesc(profileId).map(e -> modelMapper.map(e, SolutionDto.class)).collect(Collectors.toSet());
     }
 
     private void transferData(ProfileDataDto profile, ProblemServiceDataDto problem, Solution solution, SolutionMethodName methodName) {

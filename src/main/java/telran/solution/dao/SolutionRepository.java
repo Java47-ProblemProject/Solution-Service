@@ -9,6 +9,6 @@ import java.util.stream.Stream;
 
 @Repository
 public interface SolutionRepository extends MongoRepository<Solution,String> {
-    Stream<Solution> findAllByAuthorId(String profileId);
-    Stream<Solution> findAllByProblemId(String problemId);
+    Stream<Solution> findAllByAuthorIdOrderByDateCreatedDesc(String profileId);
+    Stream<Solution> findAllByProblemIdOrderByDateCreatedDesc(String problemId);
 }
